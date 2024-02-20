@@ -21,6 +21,10 @@ inputs.forEach((input) => {
     inputDiv.id = input;
     inputDiv.name = input;
     inputDiv.required = true;
+    const firstOption = document.createElement("option");
+    firstOption.innerText = "Select:";
+    firstOption.value = "";
+    inputDiv.appendChild(firstOption);
     countryList.forEach((country) => {
       const option = document.createElement("option");
       option.value = country;
@@ -28,12 +32,13 @@ inputs.forEach((input) => {
       inputDiv.appendChild(option);
     });
   } else if (input === "zip-code") {
-    inputDiv.type = "number";
-    inputDiv.min = 10000;
-    inputDiv.max = 99999;
+    inputDiv.minLength = 4;
   } else if (input === "password" || input === "password-confirmation") {
-    inputDiv.type = "password";
-    inputDiv.minLength = 8;
+    //inputDiv.type = "password";
+    inputDiv.pattern = "(?=.*[a-z])(?=.*[A-Z])(?=.*d)[a-zA-Zd]{8,}";
+    // let pass = "Foobarbaz5";
+    // let regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    // console.log(regex.test(pass));
   }
   const errorSpan = document.createElement("span");
   errorSpan.className = "error";
@@ -49,8 +54,6 @@ const submit = document.createElement("button");
 submit.innerText = "Submit";
 form.appendChild(submit);
 
-const countryError = document.querySelector("#country + span.error");
-
 email.addEventListener("input", (event) => {
   // Each time the user types something, we check if the
   // form fields are valid.
@@ -62,17 +65,7 @@ email.addEventListener("input", (event) => {
     emailError.className = "error"; // Reset the visual state of the message
   } else {
     // If there is still an error, show the correct error
-    showError(email);
-  }
-});
-
-form.addEventListener("submit", (event) => {
-  // if the email field is valid, we let the form submit
-  if (!email.validity.valid) {
-    // If it isn't, we display an appropriate error message
-    showError(form);
-    // Then we prevent the form from being sent by canceling the event
-    event.preventDefault();
+    showError();
   }
 });
 
@@ -93,4 +86,71 @@ function showError() {
 
   // Set the styling appropriately
   emailError.className = "error active";
+}
+
+const country = document.getElementById("country");
+const zip = document.getElementById("zip-code");
+const pw = document.getElementById("password");
+const pwc = document.getElementById("password-confirmation");
+
+const countryError = document.querySelector("#country + span.error");
+const zipError = document.querySelector("#zip-code + span.error");
+const pwError = document.querySelector("#password + span.error");
+const pwcError = document.querySelector("#password-confirmation + span.error");
+
+const fields = [zip, pw, pwc];
+const errorFields = [zipError, pwError, pwcError];
+
+for (let i = 0; i < fields.length; i++) {
+  const field = fields[i];
+  const errorField = errorFields[i];
+  field.addEventListener("input", () => {
+    if (field.validity.valid) {
+      errorField.textContent = ""; // Reset the content of the message
+      errorField.className = "error"; // Reset the visual state of the message
+    } else {
+      // If there is still an error, show the correct error
+      showErrors(field, errorField);
+    }
+  });
+}
+
+form.addEventListener("submit", (event) => {
+  console.log(event.target);
+  // if the email field is valid, we let the form submit
+  if (!email.validity.valid) {
+    // If it isn't, we display an appropriate error message
+    showError();
+    // Then we prevent the form from being sent by canceling the event
+  }
+  fields.forEach((e) => {
+    if (!e.validity.valid) {
+      showErrors();
+    }
+  });
+  event.preventDefault();
+});
+
+function showErrors(field, errorField) {
+  if (field.validity.valueMissing) {
+    // If the field is empty,
+    // display the following error message.
+    errorField.textContent = "Field can't be blank.";
+  } else if (field.validity.typeMismatch) {
+    // If the field doesn't contain an email address,
+    // display the following error message.
+    errorField.textContent = "Entered value needs to be an email address.";
+  } else if (field.validity.tooShort) {
+    // If the data is too short,
+    // display the following error message.
+    errorField.textContent = `Should be at least ${field.minLength} characters; you entered ${field.value.length}.`;
+  } else if (field.validity.patternMismatch) {
+    errorField.textContent =
+      "Pattern mismatch, must contain 1 capital letter, 1 lowercase letter, 1 number, and be at least 8 characters long";
+  } else {
+    console.log(field.validity);
+  }
+
+  // Set the styling appropriately
+  errorField.className = "error active";
 }
