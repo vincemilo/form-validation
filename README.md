@@ -3,3 +3,4 @@ TOP form validation exercise: https://www.theodinproject.com/lessons/javascript-
 
 - Uses Constraint Validation API to validate
 - Only uses JavaScript to validate
+- Uses CSS :valid and :invalid pseudo-classes
