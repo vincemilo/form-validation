@@ -11,7 +11,7 @@ inputs.forEach((input) => {
   const label = document.createElement("label");
   label.htmlFor = input;
   const prompt = document.createElement("span");
-  prompt.innerText = `Please enter a valid ${input}:`;
+  prompt.innerText = `Please enter a ${input}:`;
   let inputDiv = document.createElement("input");
   inputDiv.id = input;
   inputDiv.name = input;
@@ -34,11 +34,8 @@ inputs.forEach((input) => {
   } else if (input === "zip-code") {
     inputDiv.minLength = 4;
   } else if (input === "password" || input === "password-confirmation") {
-    //inputDiv.type = "password";
-    inputDiv.pattern = "(?=.*[a-z])(?=.*[A-Z])(?=.*d)[a-zA-Zd]{8,}";
-    // let pass = "Foobarbaz5";
-    // let regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    // console.log(regex.test(pass));
+    inputDiv.type = "password";
+    inputDiv.pattern = "(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}";
   }
   const errorSpan = document.createElement("span");
   errorSpan.className = "error";
@@ -98,8 +95,8 @@ const zipError = document.querySelector("#zip-code + span.error");
 const pwError = document.querySelector("#password + span.error");
 const pwcError = document.querySelector("#password-confirmation + span.error");
 
-const fields = [zip, pw, pwc];
-const errorFields = [zipError, pwError, pwcError];
+const fields = [country, zip, pw, pwc];
+const errorFields = [countryError, zipError, pwError, pwcError];
 
 for (let i = 0; i < fields.length; i++) {
   const field = fields[i];
@@ -116,19 +113,31 @@ for (let i = 0; i < fields.length; i++) {
 }
 
 form.addEventListener("submit", (event) => {
-  console.log(event.target);
+  event.preventDefault();
+  //console.log(event.target);
   // if the email field is valid, we let the form submit
   if (!email.validity.valid) {
     // If it isn't, we display an appropriate error message
     showError();
     // Then we prevent the form from being sent by canceling the event
   }
-  fields.forEach((e) => {
-    if (!e.validity.valid) {
-      showErrors();
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+    const errorField = errorFields[i];
+    if (!field.validity.valid) {
+      showErrors(field, errorField);
     }
-  });
-  event.preventDefault();
+  }
+
+  if (!(pw.value === pwc.value)) {
+    pwcError.textContent = "Passwords must match";
+    pwcError.className = "error active";
+  } else if (form.checkValidity() === true) {
+    const body = document.querySelector("body");
+    const img = document.createElement("img");
+    img.src = "high-five-dog.gif";
+    body.appendChild(img);
+  }
 });
 
 function showErrors(field, errorField) {

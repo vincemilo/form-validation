@@ -52,3 +52,8 @@ select:focus:invalid {
 .error.active {
   padding: 0.3em;
 }
+
+img {
+  padding-top: 20px;
+  max-width: 200px;
+}
